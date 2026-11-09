@@ -13,4 +13,4 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-CMD ["node", "scripts/with-app-env.mjs", "vite", "dev", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["node", "node_modules/vite/bin/vite.js", "dev", "--host", "0.0.0.0", "--port", "8080"]
