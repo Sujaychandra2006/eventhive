@@ -1,8 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, CalendarDays, LayoutDashboard, Users } from "lucide-react";
+import { BookOpen, CalendarDays, LayoutDashboard, Sparkles, Users } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { LoginScreen } from "@/components/login-screen";
 import { Mark } from "@/components/mark";
 import { MEMBERS, useHive } from "@/lib/hive";
+import { ACCOUNTS, useSession } from "@/lib/session";
 import { cn } from "@/lib/cn";
 import { fieldClass } from "@/components/ui";
 
@@ -10,6 +12,7 @@ const NAV = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
   { href: "/events", label: "Events", icon: CalendarDays },
   { href: "/volunteers", label: "Volunteers", icon: Users },
+  { href: "/assistant", label: "Hive AI", icon: Sparkles },
   { href: "/research", label: "Research", icon: BookOpen },
 ] as const;
 
@@ -24,11 +27,25 @@ export function Shell({ children }: { children: ReactNode }) {
   const meId = useHive((state) => state.meId);
   const setMe = useHive((state) => state.setMe);
   const reset = useHive((state) => state.reset);
+  const bootSession = useSession((state) => state.boot);
+  const sessionBooted = useSession((state) => state.booted);
+  const userId = useSession((state) => state.userId);
+  const signOut = useSession((state) => state.signOut);
   const [armed, setArmed] = useState(false);
 
   useEffect(() => {
     boot();
-  }, [boot]);
+    bootSession();
+  }, [boot, bootSession]);
+
+  useEffect(() => {
+    if (userId && meId !== userId) setMe(userId);
+  }, [userId, meId, setMe]);
+
+  if (!sessionBooted) return null;
+  if (!userId) return <LoginScreen />;
+
+  const account = ACCOUNTS.find((item) => item.id === userId);
 
   return (
     <div className="flex min-h-screen bg-paper">
@@ -73,6 +90,9 @@ export function Shell({ children }: { children: ReactNode }) {
           >
             {armed ? "Click again to restore" : "Restore sample board"}
           </button>
+          <button type="button" className="h-11 text-left text-sm text-muted" onClick={signOut}>
+            Sign out{account ? ` · ${account.name.split(" ")[0]}` : ""}
+          </button>
           {armed ? (
             <button type="button" className="h-11 text-sm text-muted" onClick={() => setArmed(false)}>
               Cancel
@@ -103,7 +123,7 @@ export function Shell({ children }: { children: ReactNode }) {
               {armed ? "Confirm restore" : "Restore"}
             </button>
           </div>
-          <nav className="grid grid-cols-4 border-t border-line">
+          <nav className="grid grid-cols-5 border-t border-line">
             {NAV.map((item) => {
               const Icon = item.icon;
               const active = isActive(path, item.href);
