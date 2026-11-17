@@ -3,10 +3,9 @@ import { BookOpen, CalendarDays, LayoutDashboard, Sparkles, Users } from "lucide
 import { useEffect, useState, type ReactNode } from "react";
 import { LoginScreen } from "@/components/login-screen";
 import { Mark } from "@/components/mark";
-import { MEMBERS, useHive } from "@/lib/hive";
+import { MEMBERS, memberById, useHive } from "@/lib/hive";
 import { ACCOUNTS, useSession } from "@/lib/session";
 import { cn } from "@/lib/cn";
-import { fieldClass } from "@/components/ui";
 
 const NAV = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
@@ -32,22 +31,26 @@ export function Shell({ children }: { children: ReactNode }) {
   const userId = useSession((state) => state.userId);
   const signOut = useSession((state) => state.signOut);
   const [armed, setArmed] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [synced, setSynced] = useState<string | null>(null);
 
   useEffect(() => {
     boot();
     bootSession();
   }, [boot, bootSession]);
 
-  // Set the board view to the signed-in person only when the account changes.
-  // Do not reset it when the user switches Viewing as.
+  // Set the board view once per signed-in account. Do not fight the switcher.
   useEffect(() => {
-    if (userId) setMe(userId);
-  }, [userId, setMe]);
+    if (!userId || synced === userId) return;
+    setMe(userId);
+    setSynced(userId);
+  }, [userId, synced, setMe]);
 
   if (!sessionBooted) return null;
   if (!userId) return <LoginScreen />;
 
   const account = ACCOUNTS.find((item) => item.id === userId);
+  const viewing = memberById(meId);
 
   return (
     <div className="flex min-h-screen bg-paper">
@@ -148,22 +151,44 @@ export function Shell({ children }: { children: ReactNode }) {
         </header>
 
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 lg:px-8 lg:py-8">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted">Same board for the whole team. Switch who you are viewing as.</p>
-            <label className="flex items-center gap-2 text-sm">
-              <span className="shrink-0 font-medium text-ink">Viewing as</span>
-              <select
-                className={cn(fieldClass, "sm:w-72")}
-                value={meId}
-                onChange={(event) => setMe(event.target.value)}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-muted">Same board for the whole team.</p>
+              <button
+                type="button"
+                className="h-11 shrink-0 rounded-md border border-line bg-surface px-3 text-sm font-medium text-ink"
+                onClick={() => setOpen((value) => !value)}
               >
-                {MEMBERS.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.name} · {member.role}
-                  </option>
-                ))}
-              </select>
-            </label>
+                Viewing as {viewing.name.split(" ")[0]}
+              </button>
+            </div>
+            {open ? (
+              <ul className="overflow-hidden rounded-lg border border-line bg-surface">
+                {MEMBERS.map((member) => {
+                  const active = member.id === meId;
+                  return (
+                    <li key={member.id} className="border-t border-line first:border-t-0">
+                      <button
+                        type="button"
+                        className={cn(
+                          "flex h-12 w-full items-center justify-between px-4 text-left text-sm",
+                          active ? "bg-honey-soft text-honey" : "text-ink",
+                        )}
+                        onClick={() => {
+                          setMe(member.id);
+                          setOpen(false);
+                        }}
+                      >
+                        <span>
+                          {member.name} · {member.role}
+                        </span>
+                        <span className={cn("size-3 rounded-full", active ? "bg-honey" : "border border-line")}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
           </div>
           <main>{children}</main>
         </div>
