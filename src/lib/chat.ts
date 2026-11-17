@@ -51,21 +51,27 @@ export const askHive = createServerFn({ method: "POST" }).handler(
   async ({ data }: { data: ChatInput }): Promise<ChatReply> => {
     const input = data;
     if (!input?.eventTitle || !Array.isArray(input.messages)) {
-      return { text: "Pick an event and type a question.", tasks: [], source: "local" };
+      return { text: "Hi. Ask me anything.", tasks: [], source: "local" };
     }
 
+    const last = input.messages.at(-1)?.content?.toLowerCase().trim() ?? "";
+    const isGreeting = /^(hi|hii|hello|hey|yo|sup|good morning|good evening|how are you)\b/.test(last);
+
     const key = process.env.GROQ_API_KEY?.trim();
-    if (!key) return localReply(input);
+    if (!key) {
+      return isGreeting
+        ? { text: "Hi. I am Hive AI. Ask me anything about this event, or just chat.", tasks: [], source: "local" }
+        : localReply(input);
+    }
 
     const system = [
-      "You are Hive AI, a helpful campus event planner for EventHive.",
-      "Answer any question the student asks, in clear plain language, the way a good assistant would.",
-      "Explain why, give steps, and give options when useful. Do not only list tasks.",
-      `The current event is ${input.eventTitle}.`,
-      `Event details: ${input.eventDescription || "No description."}.`,
-      "If the question is about planning this event, end your reply with one JSON object of 3 to 5 jobs:",
+      "You are Hive AI, a friendly real chatbot inside the EventHive campus app.",
+      "Answer every message like a normal AI assistant. If someone says hi, hello, or how are you, reply naturally and offer help.",
+      "You can answer general questions, explain things, and chat. Do not force event tasks unless the user asks about planning.",
+      `The open event is ${input.eventTitle}. Details: ${input.eventDescription || "No description."}.`,
+      "Only when the user asks for a plan, tasks, or what to do for the event, end with one JSON object:",
       '{"tasks":[{"title":"Confirm the venue","priority":"high"}]}',
-      "priority is high or normal. No markdown fences. If the question is not about tasks, skip the JSON.",
+      "priority is high or normal. No markdown fences. For greetings and other questions, do not add JSON.",
     ].join(" ");
 
     try {
@@ -77,27 +83,37 @@ export const askHive = createServerFn({ method: "POST" }).handler(
         },
         body: JSON.stringify({
           model: "openai/gpt-oss-20b",
-          temperature: 0.7,
+          temperature: 0.8,
           max_tokens: 900,
           messages: [{ role: "system", content: system }, ...input.messages.slice(-8)],
         }),
       });
 
-      if (!response.ok) return localReply(input);
+      if (!response.ok) {
+        return isGreeting
+          ? { text: "Hi. I am Hive AI. Ask me anything about this event, or just chat.", tasks: [], source: "local" }
+          : localReply(input);
+      }
       const payload = (await response.json()) as {
         choices?: Array<{ message?: { content?: string } }>;
       };
       const raw = payload.choices?.[0]?.message?.content?.trim();
-      if (!raw) return localReply(input);
+      if (!raw) {
+        return isGreeting
+          ? { text: "Hi. I am Hive AI. Ask me anything about this event, or just chat.", tasks: [], source: "local" }
+          : localReply(input);
+      }
 
       const tasks = parseTasks(raw);
       return {
-        text: visibleText(raw) || "Here is a plan for this event.",
-        tasks,
+        text: visibleText(raw) || "Hi. How can I help?",
+        tasks: isGreeting ? [] : tasks,
         source: "groq",
       };
     } catch {
-      return localReply(input);
+      return isGreeting
+        ? { text: "Hi. I am Hive AI. Ask me anything about this event, or just chat.", tasks: [], source: "local" }
+        : localReply(input);
     }
   },
 );
