@@ -39,7 +39,6 @@ export function Shell({ children }: { children: ReactNode }) {
     bootSession();
   }, [boot, bootSession]);
 
-  // Set the board view once per signed-in account. Do not fight the switcher.
   useEffect(() => {
     if (!userId || synced === userId) return;
     setMe(userId);
@@ -182,7 +181,7 @@ export function Shell({ children }: { children: ReactNode }) {
                         <span>
                           {member.name} · {member.role}
                         </span>
-                        <span className={cn("size-3 rounded-full", active ? "bg-honey" : "border border-line")}
+                        <span className={cn("size-3 rounded-full", active ? "bg-honey" : "border border-line")} />
                       </button>
                     </li>
                   );
