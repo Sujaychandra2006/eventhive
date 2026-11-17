@@ -56,10 +56,12 @@ export const streamHive = createServerFn({ method: "POST" }).handler(
     const key = process.env.GROQ_API_KEY?.trim();
 
     if (!key) {
-      const text = isGreeting
-        ? "Hi. I am Hive AI. Ask me anything about this event, or just chat."
-        : "Groq is not connected. Here is the usual campus checklist.";
-      yield { text, done: true, tasks: isGreeting ? [] : localTasks(input), source: "local" };
+      yield {
+        text: "GROQ_API_KEY is missing on Vercel. Add it under Settings → Environment Variables for Production, then redeploy.",
+        done: true,
+        tasks: isGreeting ? [] : localTasks(input),
+        source: "local",
+      };
       return;
     }
 
@@ -84,14 +86,14 @@ export const streamHive = createServerFn({ method: "POST" }).handler(
           model: "openai/gpt-oss-20b",
           temperature: 0.8,
           max_tokens: 900,
-          stream: true,
           messages: [{ role: "system", content: system }, ...input.messages.slice(-8)],
         }),
       });
 
-      if (!response.ok || !response.body) {
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
         yield {
-          text: isGreeting ? "Hi. I am Hive AI." : "Groq did not reply. Try again.",
+          text: `Groq returned ${response.status}. Check that the key is valid and set for Production. ${detail.slice(0, 180)}`,
           done: true,
           tasks: isGreeting ? [] : localTasks(input),
           source: "local",
@@ -99,42 +101,27 @@ export const streamHive = createServerFn({ method: "POST" }).handler(
         return;
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let full = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith("data:")) continue;
-          const payload = trimmed.slice(5).trim();
-          if (!payload || payload === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(payload) as {
-              choices?: Array<{ delta?: { content?: string } }>;
-            };
-            const piece = parsed.choices?.[0]?.delta?.content ?? "";
-            if (piece) {
-              full += piece;
-              yield { text: piece, source: "groq" };
-            }
-          } catch {
-            /* ignore partial chunks */
-          }
-        }
+      const payload = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+      };
+      const raw = payload.choices?.[0]?.message?.content?.trim() ?? "";
+      if (!raw) {
+        yield { text: "Groq replied empty. Try again.", done: true, source: "local" };
+        return;
       }
 
-      const tasks = isGreeting ? [] : parseTasks(full);
-      yield { text: "", done: true, tasks, source: "groq" };
-    } catch {
+      const text = visibleText(raw) || raw;
+      yield { text, source: "groq" };
       yield {
-        text: isGreeting ? "Hi. I am Hive AI." : "The chat could not reach Groq.",
+        text: "",
+        done: true,
+        tasks: isGreeting ? [] : parseTasks(raw),
+        source: "groq",
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "network error";
+      yield {
+        text: `Could not reach Groq: ${message}`,
         done: true,
         tasks: isGreeting ? [] : localTasks(input),
         source: "local",
