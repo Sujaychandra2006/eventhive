@@ -1,0 +1,21 @@
+name: Clear stale Vercel output
+on:
+  workflow_dispatch:
+jobs:
+  clear:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove prebuilt output
+        run: |
+          git config user.name "Sujaychandra2006"
+          git config user.email "2025cs_sujaychandrak_g@nie.ac.in"
+          git rm -r .vercel/output || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Remove stale Vercel output so the live site rebuilds"
+            git push
+          else
+            echo "Already clear"
+          fi
