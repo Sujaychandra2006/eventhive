@@ -18,7 +18,8 @@ function AssistantPage() {
   const [chat, setChat] = useState<Shown[]>([
     {
       role: "assistant",
-      content: "Ask me to plan an event. I can list the jobs a campus team usually forgets, then you can drop them on the board.",
+      content:
+        "Ask me anything about this event. I can explain a plan, walk through the day, or list the jobs you should put on the board.",
     },
   ]);
 
@@ -74,7 +75,7 @@ function AssistantPage() {
         <p className="text-sm font-medium text-honey">Groq chatbot</p>
         <h1 className="mt-1 font-display text-4xl font-medium text-ink">Hive AI</h1>
         <p className="mt-3 max-w-xl text-muted">
-          Ask in plain words. The reply comes from Groq on the server, then you can add the suggested jobs to this event.
+          Ask any question. Hive explains the answer in plain words, and adds jobs to the board when the question is about planning.
         </p>
       </header>
 
@@ -96,7 +97,7 @@ function AssistantPage() {
                 className={
                   item.role === "user"
                     ? "max-w-md rounded-lg bg-honey px-4 py-3 text-sm text-surface"
-                    : "max-w-xl rounded-lg bg-paper px-4 py-3 text-sm text-ink"
+                    : "max-w-xl whitespace-pre-wrap rounded-lg bg-paper px-4 py-3 text-sm text-ink"
                 }
               >
                 {item.content}
@@ -153,7 +154,7 @@ function AssistantPage() {
             className={fieldClass}
             value={draft}
             onChange={(next) => setDraft(next.target.value)}
-            placeholder="Plan the blood drive, or ask what we are missing"
+            placeholder="Ask anything about this event"
           />
           <Button type="submit" disabled={busy || !draft.trim()}>
             Send
