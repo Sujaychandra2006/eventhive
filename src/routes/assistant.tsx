@@ -18,8 +18,7 @@ function AssistantPage() {
   const [chat, setChat] = useState<Shown[]>([
     {
       role: "assistant",
-      content:
-        "Ask me anything about this event. I can explain a plan, walk through the day, or list the jobs you should put on the board.",
+      content: "Hi. I am Hive AI. Say hi, ask me anything, or ask me to plan this event.",
     },
   ]);
 
@@ -75,7 +74,7 @@ function AssistantPage() {
         <p className="text-sm font-medium text-honey">Groq chatbot</p>
         <h1 className="mt-1 font-display text-4xl font-medium text-ink">Hive AI</h1>
         <p className="mt-3 max-w-xl text-muted">
-          Ask any question. Hive explains the answer in plain words, and adds jobs to the board when the question is about planning.
+          Chat normally. Say hi, ask a general question, or ask for a plan. Jobs appear only when you ask for them.
         </p>
       </header>
 
@@ -154,7 +153,7 @@ function AssistantPage() {
             className={fieldClass}
             value={draft}
             onChange={(next) => setDraft(next.target.value)}
-            placeholder="Ask anything about this event"
+            placeholder="Say hi, or ask anything"
           />
           <Button type="submit" disabled={busy || !draft.trim()}>
             Send
