@@ -58,13 +58,14 @@ export const askHive = createServerFn({ method: "POST" }).handler(
     if (!key) return localReply(input);
 
     const system = [
-      "You are Hive AI, the planner for EventHive, a campus event board.",
-      "Help a student team plan the event. Be short and practical.",
-      `Event: ${input.eventTitle}.`,
-      `Details: ${input.eventDescription || "No description."}.`,
-      "Reply in plain sentences, then end with one JSON object only:",
+      "You are Hive AI, a helpful campus event planner for EventHive.",
+      "Answer any question the student asks, in clear plain language, the way a good assistant would.",
+      "Explain why, give steps, and give options when useful. Do not only list tasks.",
+      `The current event is ${input.eventTitle}.`,
+      `Event details: ${input.eventDescription || "No description."}.`,
+      "If the question is about planning this event, end your reply with one JSON object of 3 to 5 jobs:",
       '{"tasks":[{"title":"Confirm the venue","priority":"high"}]}',
-      "Give 3 to 5 tasks. priority is high or normal. No markdown fences.",
+      "priority is high or normal. No markdown fences. If the question is not about tasks, skip the JSON.",
     ].join(" ");
 
     try {
@@ -76,8 +77,8 @@ export const askHive = createServerFn({ method: "POST" }).handler(
         },
         body: JSON.stringify({
           model: "openai/gpt-oss-20b",
-          temperature: 0.4,
-          max_tokens: 500,
+          temperature: 0.7,
+          max_tokens: 900,
           messages: [{ role: "system", content: system }, ...input.messages.slice(-8)],
         }),
       });
@@ -92,7 +93,7 @@ export const askHive = createServerFn({ method: "POST" }).handler(
       const tasks = parseTasks(raw);
       return {
         text: visibleText(raw) || "Here is a plan for this event.",
-        tasks: tasks.length ? tasks : localReply(input).tasks,
+        tasks,
         source: "groq",
       };
     } catch {
