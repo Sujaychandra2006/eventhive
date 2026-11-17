@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, Field, fieldClass } from "@/components/ui";
-import { askHive, type ChatTask, type ChatTurn } from "@/lib/chat";
+import { streamHive, visibleText, type ChatTask, type ChatTurn } from "@/lib/chat";
 import { useHive } from "@/lib/hive";
 
 export const Route = createFileRoute("/assistant")({ component: AssistantPage });
@@ -34,26 +34,57 @@ function AssistantPage() {
         .map((item) => ({ role: item.role, content: item.content })),
       { role: "user" as const, content: text },
     ];
-    setChat((current) => [...current, { role: "user", content: text }]);
+    setChat((current) => [...current, { role: "user", content: text }, { role: "assistant", content: "" }]);
     setDraft("");
     setBusy(true);
+    let full = "";
     try {
-      const reply = await askHive({
+      const stream = await streamHive({
         data: {
           eventTitle: event.title,
           eventDescription: event.description,
           messages: history,
         },
       });
-      setChat((current) => [
-        ...current,
-        { role: "assistant", content: reply.text, tasks: reply.tasks, source: reply.source },
-      ]);
+      for await (const chunk of stream) {
+        if (chunk.text) {
+          full += chunk.text;
+          const shown = visibleText(full);
+          setChat((current) => {
+            const next = [...current];
+            const last = next.at(-1);
+            if (last?.role === "assistant") {
+              next[next.length - 1] = { ...last, content: shown || full, source: chunk.source ?? last.source };
+            }
+            return next;
+          });
+        }
+        if (chunk.done) {
+          const shown = visibleText(full) || full;
+          setChat((current) => {
+            const next = [...current];
+            const last = next.at(-1);
+            if (last?.role === "assistant") {
+              next[next.length - 1] = {
+                ...last,
+                content: shown,
+                tasks: chunk.tasks,
+                source: chunk.source ?? last.source,
+              };
+            }
+            return next;
+          });
+        }
+      }
     } catch {
-      setChat((current) => [
-        ...current,
-        { role: "assistant", content: "The chat could not reach Groq. Try again in a minute." },
-      ]);
+      setChat((current) => {
+        const next = [...current];
+        const last = next.at(-1);
+        if (last?.role === "assistant" && !last.content) {
+          next[next.length - 1] = { ...last, content: "The chat could not reach Groq. Try again in a minute." };
+        }
+        return next;
+      });
     } finally {
       setBusy(false);
     }
@@ -71,10 +102,10 @@ function AssistantPage() {
   return (
     <div className="flex max-w-3xl flex-col gap-6">
       <header>
-        <p className="text-sm font-medium text-honey">Groq chatbot</p>
+        <p className="text-sm font-medium text-honey">Live Groq chat</p>
         <h1 className="mt-1 font-display text-4xl font-medium text-ink">Hive AI</h1>
         <p className="mt-3 max-w-xl text-muted">
-          Chat normally. Say hi, ask a general question, or ask for a plan. Jobs appear only when you ask for them.
+          Answers appear as they are written. Say hi, ask anything, or ask for a plan.
         </p>
       </header>
 
@@ -99,7 +130,7 @@ function AssistantPage() {
                     : "max-w-xl whitespace-pre-wrap rounded-lg bg-paper px-4 py-3 text-sm text-ink"
                 }
               >
-                {item.content}
+                {item.content || (busy && index === chat.length - 1 ? "..." : "")}
                 {item.source === "local" ? (
                   <p className="mt-2 text-xs text-muted">Shown from the local checklist because Groq did not reply.</p>
                 ) : null}
@@ -139,7 +170,6 @@ function AssistantPage() {
               ) : null}
             </div>
           ))}
-          {busy ? <p className="text-sm text-muted">Hive is thinking...</p> : null}
         </div>
 
         <form
