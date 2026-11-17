@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, Field, fieldClass } from "@/components/ui";
-import { askHive, type ChatTask, type ChatTurn } from "@/lib/chat.server";
+import { askHive, type ChatTask, type ChatTurn } from "@/lib/chat";
 import { useHive } from "@/lib/hive";
 
 export const Route = createFileRoute("/assistant")({ component: AssistantPage });
@@ -28,7 +28,6 @@ function AssistantPage() {
     if (!event || busy) return;
     const text = draft.trim();
     if (!text) return;
-    const next: ChatTurn[] = [...chat.filter((item) => item.role !== "assistant" || item.content), { role: "user", content: text }];
     const history = [
       ...chat
         .filter((item) => item.content)
@@ -58,7 +57,6 @@ function AssistantPage() {
     } finally {
       setBusy(false);
     }
-    void next;
   }
 
   if (!event) {
