@@ -43,6 +43,14 @@ export function visibleText(raw: string) {
   return raw.replace(/\{[\s\S]*"tasks"[\s\S]*\}/, "").trim();
 }
 
+function readKey() {
+  return (
+    process.env.GROQ_API_KEY?.trim() ||
+    process.env.grok_api_key?.trim() ||
+    process.env.GROK_API_KEY?.trim()
+  );
+}
+
 export const streamHive = createServerFn({ method: "POST" }).handler(
   async function* ({ data }: { data: ChatInput }): AsyncGenerator<ChatChunk> {
     const input = data;
@@ -53,11 +61,11 @@ export const streamHive = createServerFn({ method: "POST" }).handler(
 
     const last = input.messages.at(-1)?.content?.toLowerCase().trim() ?? "";
     const isGreeting = /^(hi|hii|hello|hey|yo|sup|good morning|good evening|how are you)\b/.test(last);
-    const key = process.env.GROQ_API_KEY?.trim();
+    const key = readKey();
 
     if (!key) {
       yield {
-        text: "GROQ_API_KEY is missing on Vercel. Add it under Settings → Environment Variables for Production, then redeploy.",
+        text: "The Groq key is missing on Vercel. Name it GROQ_API_KEY or grok_api_key under Production, then redeploy.",
         done: true,
         tasks: isGreeting ? [] : localTasks(input),
         source: "local",
