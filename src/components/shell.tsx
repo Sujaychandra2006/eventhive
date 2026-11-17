@@ -38,9 +38,11 @@ export function Shell({ children }: { children: ReactNode }) {
     bootSession();
   }, [boot, bootSession]);
 
+  // Set the board view to the signed-in person only when the account changes.
+  // Do not reset it when the user switches Viewing as.
   useEffect(() => {
-    if (userId && meId !== userId) setMe(userId);
-  }, [userId, meId, setMe]);
+    if (userId) setMe(userId);
+  }, [userId, setMe]);
 
   if (!sessionBooted) return null;
   if (!userId) return <LoginScreen />;
