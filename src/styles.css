@@ -4,20 +4,20 @@
   --font-sans: "Outfit", system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
 
-  --color-ink: #1c1914;
-  --color-muted: #6e665c;
-  --color-paper: #f4efe6;
-  --color-surface: #fffdf8;
-  --color-line: #e4dccf;
-  --color-honey: #9a3412;
-  --color-honey-soft: #f6e6d4;
-  --color-moss: #1d5c3d;
-  --color-moss-soft: #e3f2ea;
-  --color-deep: #2a211c;
+  --color-ink: #1a1612;
+  --color-muted: #6a6158;
+  --color-paper: #f3eee6;
+  --color-surface: #fffdf9;
+  --color-line: #e6ddd0;
+  --color-honey: #b45309;
+  --color-honey-soft: #f8ead9;
+  --color-moss: #166534;
+  --color-moss-soft: #e4f3ea;
+  --color-deep: #1c1612;
 
-  --radius-sm: 0.6rem;
-  --radius-md: 0.9rem;
-  --radius-lg: 1.15rem;
+  --radius-sm: 0.7rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
 }
 
 @layer base {
@@ -28,8 +28,8 @@
 
   body {
     background:
-      radial-gradient(1200px 600px at 100% -10%, rgba(154, 52, 18, 0.08), transparent 50%),
-      radial-gradient(900px 500px at -10% 110%, rgba(29, 92, 61, 0.07), transparent 45%),
+      radial-gradient(900px 480px at 110% -8%, rgba(180, 83, 9, 0.12), transparent 55%),
+      radial-gradient(700px 420px at -12% 108%, rgba(22, 101, 52, 0.1), transparent 50%),
       var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);

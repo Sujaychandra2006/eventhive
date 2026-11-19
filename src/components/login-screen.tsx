@@ -10,31 +10,47 @@ export function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1.1fr_0.9fr]">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-deep px-10 py-10 text-white lg:flex">
-        <div className="pointer-events-none absolute -right-16 -top-16 size-72 rounded-full bg-honey/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 left-10 size-80 rounded-full bg-moss/25 blur-3xl" />
+    <div className="grid min-h-screen lg:grid-cols-2">
+      <section className="relative hidden overflow-hidden bg-deep text-white lg:flex lg:flex-col lg:justify-between lg:px-12 lg:py-12">
+        <div className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-honey/40 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-0 size-[28rem] rounded-full bg-moss/30 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+
         <div className="relative flex items-center gap-3">
-          <Mark className="size-8 text-honey-soft" />
+          <Mark className="size-10 text-honey-soft" />
           <span className="font-display text-2xl">EventHive</span>
         </div>
+
         <div className="relative max-w-lg">
-          <p className="text-sm font-medium tracking-wide text-honey-soft">Campus event desk</p>
-          <h1 className="mt-3 font-display text-5xl leading-tight">One board for the whole fest.</h1>
-          <p className="mt-4 max-w-md text-lg text-white/75">
-            Events, owners, shifts, and a live AI helper. Built for the committee, not the group chat.
+          <p className="text-sm font-medium tracking-[0.18em] text-honey-soft">CAMPUS EVENT DESK</p>
+          <h1 className="mt-4 font-display text-6xl leading-[1.05]">The whole fest. One board.</h1>
+          <p className="mt-5 max-w-md text-lg text-white/70">
+            Owners, shifts, participants, and a live AI helper. Built so the committee stops living in five tools.
           </p>
+          <div className="mt-8 grid grid-cols-3 gap-3">
+            {[
+              ["Events", "One place"],
+              ["Board", "To do · Done"],
+              ["Hive AI", "Live Groq"],
+            ].map(([title, note]) => (
+              <div key={title} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur">
+                <p className="font-display text-lg">{title}</p>
+                <p className="text-xs text-white/55">{note}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="relative text-sm text-white/60">Batch 6 · Lab G1 · NIE Mysuru</p>
+
+        <p className="relative text-sm text-white/50">Batch 6 · Lab G1 · NIE Mysuru</p>
       </section>
 
       <section className="flex items-center justify-center px-5 py-12">
         <div className="w-full max-w-md">
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <Mark className="size-7 text-honey" />
+            <Mark className="size-8 text-honey" />
             <span className="font-display text-2xl text-ink">EventHive</span>
           </div>
-          <h1 className="font-display text-4xl font-medium text-ink">Sign in.</h1>
+          <h1 className="font-display text-4xl font-medium text-ink">Sign in to the desk.</h1>
           <p className="mt-2 text-sm text-muted">
             Team accounts. Password for every demo account is{" "}
             <span className="rounded-md bg-honey-soft px-1.5 py-0.5 font-medium text-honey">{DEMO_PASSWORD}</span>.
@@ -67,7 +83,7 @@ export function LoginScreen() {
               />
             </Field>
             {error ? <p className="text-sm text-honey">{error}</p> : null}
-            <Button type="submit" className="mt-1">
+            <Button type="submit" className="mt-1 h-12 text-base">
               Enter the board
             </Button>
           </form>

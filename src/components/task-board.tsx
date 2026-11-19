@@ -10,10 +10,10 @@ import {
 } from "@/lib/hive";
 import { cn } from "@/lib/cn";
 
-const COLUMNS: { id: Column; label: string }[] = [
-  { id: "todo", label: "To do" },
-  { id: "doing", label: "Doing" },
-  { id: "done", label: "Done" },
+const COLUMNS: { id: Column; label: string; tone: string }[] = [
+  { id: "todo", label: "To do", tone: "bg-honey-soft text-honey" },
+  { id: "doing", label: "Doing", tone: "bg-deep text-white" },
+  { id: "done", label: "Done", tone: "bg-moss-soft text-moss" },
 ];
 
 export function TaskBoard({ eventId }: { eventId: string }) {
@@ -77,7 +77,7 @@ export function TaskBoard({ eventId }: { eventId: string }) {
               onClick={() => setFilter(id)}
               className={cn(
                 "h-11 rounded-full px-4 text-sm font-medium",
-                filter === id ? "bg-ink text-surface" : "bg-surface text-ink border border-line",
+                filter === id ? "bg-deep text-white" : "border border-line bg-surface text-ink",
               )}
             >
               {label}
@@ -91,7 +91,7 @@ export function TaskBoard({ eventId }: { eventId: string }) {
 
       {open ? (
         <form
-          className="grid gap-3 rounded-lg border border-line bg-surface p-4 sm:grid-cols-2"
+          className="grid gap-3 rounded-2xl border border-line bg-surface p-4 shadow-sm sm:grid-cols-2"
           onSubmit={(event) => {
             event.preventDefault();
             submit();
@@ -138,7 +138,7 @@ export function TaskBoard({ eventId }: { eventId: string }) {
             <section
               key={column.id}
               className={cn(
-                "flex flex-col gap-3 rounded-lg border bg-surface p-3",
+                "flex flex-col gap-3 rounded-2xl border bg-surface p-3 shadow-sm",
                 dragOver === column.id ? "border-honey" : "border-line",
               )}
               onDragOver={(event) => {
@@ -153,9 +153,9 @@ export function TaskBoard({ eventId }: { eventId: string }) {
                 setDragOver(null);
               }}
             >
-              <header className="flex items-center justify-between px-1">
-                <h3 className="text-sm font-medium text-ink">{column.label}</h3>
-                <span className="text-sm tabular-nums text-muted">{cards.length}</span>
+              <header className={cn("flex items-center justify-between rounded-xl px-3 py-2", column.tone)}>
+                <h3 className="text-sm font-medium">{column.label}</h3>
+                <span className="text-sm tabular-nums">{cards.length}</span>
               </header>
               {cards.length === 0 ? <p className="px-1 py-6 text-sm text-muted">Nothing here.</p> : null}
               {cards.map((task) => (
@@ -200,7 +200,7 @@ function TaskCard({
     <article
       draggable
       onDragStart={(event) => event.dataTransfer.setData("text/plain", task.id)}
-      className="flex flex-col gap-3 rounded-md border border-line bg-paper p-3"
+      className="flex flex-col gap-3 rounded-xl border border-line bg-paper p-3"
     >
       <div className="flex items-start justify-between gap-2">
         <h4 className="text-sm font-medium text-ink">{task.title}</h4>
