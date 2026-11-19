@@ -157,7 +157,7 @@ export function TaskBoard({ eventId }: { eventId: string }) {
                 <h3 className="text-sm font-medium">{column.label}</h3>
                 <span className="text-sm tabular-nums">{cards.length}</span>
               </header>
-              {cards.length === 0 ? <p className="px-1 py-6 text-sm text-muted">Nothing here.</p> : null}
+              {cards.length === 0 ? <p className="px-1 py-6 text-sm text-muted">No cards in this column.</p> : null}
               {cards.map((task) => (
                 <TaskCard
                   key={task.id}
