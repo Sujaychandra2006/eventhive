@@ -51,8 +51,9 @@ function readKey() {
   );
 }
 
-export const streamHive = createServerFn({ method: "POST" }).handler(
-  async function* ({ data }: { data: ChatInput }): AsyncGenerator<ChatChunk> {
+export const streamHive = createServerFn({ method: "POST" })
+  .inputValidator((data: ChatInput) => data)
+  .handler(async function* ({ data }): AsyncGenerator<ChatChunk> {
     const input = data;
     if (!input?.eventTitle || !Array.isArray(input.messages)) {
       yield { text: "Hi. Ask me anything.", done: true, source: "local" };
@@ -135,5 +136,4 @@ export const streamHive = createServerFn({ method: "POST" }).handler(
         source: "local",
       };
     }
-  },
-);
+  });

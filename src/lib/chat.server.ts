@@ -47,8 +47,9 @@ function visibleText(raw: string) {
   return raw.replace(/\{[\s\S]*"tasks"[\s\S]*\}/, "").trim();
 }
 
-export const askHive = createServerFn({ method: "POST" }).handler(
-  async ({ data }: { data: ChatInput }): Promise<ChatReply> => {
+export const askHive = createServerFn({ method: "POST" })
+  .inputValidator((data: ChatInput) => data)
+  .handler(async ({ data }): Promise<ChatReply> => {
     const input = data;
     if (!input?.eventTitle || !Array.isArray(input.messages)) {
       return { text: "Pick an event and type a question.", tasks: [], source: "local" };
@@ -98,5 +99,4 @@ export const askHive = createServerFn({ method: "POST" }).handler(
     } catch {
       return localReply(input);
     }
-  },
-);
+  });
