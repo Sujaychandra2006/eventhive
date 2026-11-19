@@ -1,1 +1,1 @@
-i handled the research page and litreature
+i handled the research page and litreature and design
