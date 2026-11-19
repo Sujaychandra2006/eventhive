@@ -18,7 +18,7 @@ function AssistantPage() {
   const [chat, setChat] = useState<Shown[]>([
     {
       role: "assistant",
-      content: "Hi. I am Hive AI. Say hi, ask me anything, or ask me to plan this event.",
+      content: "Hi. I am Hive AI. Ask me anything about this event.",
     },
   ]);
 
