@@ -52,11 +52,11 @@ export function Shell({ children }: { children: ReactNode }) {
   const viewing = memberById(meId);
 
   return (
-    <div className="flex min-h-screen bg-paper">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-line bg-surface lg:flex">
-        <Link to="/" className="flex h-16 items-center gap-2.5 px-5 text-ink">
-          <Mark className="size-7 text-honey" />
-          <span className="font-display text-xl font-medium">EventHive</span>
+    <div className="flex min-h-screen">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-deep text-white lg:flex">
+        <Link to="/" className="flex h-16 items-center gap-2.5 px-5">
+          <Mark className="size-7 text-honey-soft" />
+          <span className="font-display text-xl">EventHive</span>
         </Link>
         <nav className="flex flex-1 flex-col gap-1 px-3">
           {NAV.map((item) => {
@@ -69,20 +69,21 @@ export function Shell({ children }: { children: ReactNode }) {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
-                  active ? "bg-honey-soft text-honey" : "text-ink hover:bg-paper",
+                  active ? "bg-white/12 text-white" : "text-white/70 hover:bg-white/8 hover:text-white",
                 )}
               >
                 <Icon className="size-4" aria-hidden="true" />
                 {item.label}
+                {active ? <span className="ml-auto size-1.5 rounded-full bg-honey-soft" /> : null}
               </Link>
             );
           })}
         </nav>
-        <div className="border-t border-line p-4">
-          <p className="text-xs text-muted">Batch 6 · Lab G1</p>
+        <div className="border-t border-white/10 p-4">
+          <p className="text-xs text-white/50">Batch 6 · Lab G1</p>
           <button
             type="button"
-            className="mt-2 h-11 text-left text-sm text-honey"
+            className="mt-2 h-11 text-left text-sm text-honey-soft"
             onClick={() => {
               if (!armed) {
                 setArmed(true);
@@ -94,11 +95,11 @@ export function Shell({ children }: { children: ReactNode }) {
           >
             {armed ? "Click again to restore" : "Restore sample board"}
           </button>
-          <button type="button" className="h-11 text-left text-sm text-muted" onClick={signOut}>
+          <button type="button" className="h-11 text-left text-sm text-white/60" onClick={signOut}>
             Sign out{account ? ` · ${account.name.split(" ")[0]}` : ""}
           </button>
           {armed ? (
-            <button type="button" className="h-11 text-sm text-muted" onClick={() => setArmed(false)}>
+            <button type="button" className="h-11 text-sm text-white/50" onClick={() => setArmed(false)}>
               Cancel
             </button>
           ) : null}
@@ -106,11 +107,11 @@ export function Shell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-20 border-b border-line bg-surface lg:hidden">
+        <header className="sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur lg:hidden">
           <div className="flex h-14 items-center justify-between px-4">
             <Link to="/" className="flex items-center gap-2 text-ink">
               <Mark className="size-6 text-honey" />
-              <span className="font-display text-lg font-medium">EventHive</span>
+              <span className="font-display text-lg">EventHive</span>
             </Link>
             <button
               type="button"
@@ -155,14 +156,14 @@ export function Shell({ children }: { children: ReactNode }) {
               <p className="text-sm text-muted">Same board for the whole team.</p>
               <button
                 type="button"
-                className="h-11 shrink-0 rounded-md border border-line bg-surface px-3 text-sm font-medium text-ink"
+                className="h-11 shrink-0 rounded-full border border-line bg-surface px-4 text-sm font-medium text-ink shadow-sm"
                 onClick={() => setOpen((value) => !value)}
               >
                 Viewing as {viewing.name.split(" ")[0]}
               </button>
             </div>
             {open ? (
-              <ul className="overflow-hidden rounded-lg border border-line bg-surface">
+              <ul className="overflow-hidden rounded-xl border border-line bg-surface shadow-sm">
                 {MEMBERS.map((member) => {
                   const active = member.id === meId;
                   return (

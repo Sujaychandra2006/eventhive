@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { CalendarDays, CheckCircle2, Clock3, ListTodo } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EventDialog } from "@/components/event-dialog";
 import { Button, Meter, Pill } from "@/components/ui";
@@ -36,41 +37,51 @@ function Overview() {
   })).sort((a, b) => b.open - a.open);
   const maxLoad = Math.max(1, ...workload.map((member) => member.open));
 
+  const stats = [
+    { label: "Events", value: events.length, icon: CalendarDays },
+    { label: "Open tasks", value: openTasks.length, icon: ListTodo },
+    { label: "Shifts confirmed", value: confirmed, icon: CheckCircle2 },
+    { label: "Still waiting", value: pending.length, icon: Clock3 },
+  ];
+
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-sm font-medium text-honey">Campus event desk</p>
-          <h1 className="mt-1 font-display text-4xl font-medium text-ink">The whole fest, on one board.</h1>
-          <p className="mt-3 text-muted">
-            {me.name.split(" ")[0]}, tasks have owners and volunteers have shifts. This replaces the group chat,
-            the sheet, and the form that nobody updates.
-          </p>
+      <header className="overflow-hidden rounded-2xl bg-deep px-6 py-7 text-white sm:px-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-sm font-medium text-honey-soft">Campus event desk</p>
+            <h1 className="mt-2 font-display text-4xl font-medium sm:text-5xl">The whole fest, on one board.</h1>
+            <p className="mt-3 max-w-xl text-white/70">
+              {me.name.split(" ")[0]}, tasks have owners and volunteers have shifts. This replaces the group chat,
+              the sheet, and the form that nobody updates.
+            </p>
+          </div>
+          <Button type="button" onClick={() => setCreating(true)} className="bg-white text-deep hover:opacity-90">
+            New event
+          </Button>
         </div>
-        <Button type="button" onClick={() => setCreating(true)}>
-          New event
-        </Button>
       </header>
 
-      <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4">
-        {[
-          ["Events", events.length],
-          ["Open tasks", openTasks.length],
-          ["Shifts confirmed", confirmed],
-          ["Still waiting", pending.length],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="bg-surface px-4 py-4">
-            <dt className="text-xs text-muted">{label}</dt>
-            <dd className="font-display text-3xl tabular-nums text-ink">{value}</dd>
-          </div>
-        ))}
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <div key={stat.label} className="rounded-2xl border border-line bg-surface p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <dt className="text-xs text-muted">{stat.label}</dt>
+                <Icon className="size-4 text-honey" aria-hidden="true" />
+              </div>
+              <dd className="mt-2 font-display text-4xl tabular-nums text-ink">{stat.value}</dd>
+            </div>
+          );
+        })}
       </dl>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <section className="flex flex-col gap-3">
           <h2 className="font-display text-2xl font-medium text-ink">Coming up</h2>
           {ordered.length === 0 ? (
-            <p className="rounded-lg border border-line bg-surface p-6 text-sm text-muted">
+            <p className="rounded-2xl border border-line bg-surface p-6 text-sm text-muted">
               No events yet. Add the first one and the board fills in around it.
             </p>
           ) : (
@@ -82,10 +93,10 @@ function Overview() {
               const eventConfirmed = eventShifts.filter((shift) => shift.status === "confirmed").length;
               const when = formatDay(event.date);
               return (
-                <article key={event.id} className="flex gap-4 rounded-lg border border-line bg-surface p-4">
-                  <div className="flex w-16 shrink-0 flex-col items-center justify-center rounded-md bg-paper py-2">
-                    <span className="text-xs uppercase text-muted">{when.month}</span>
-                    <span className="font-display text-2xl tabular-nums text-ink">{when.day}</span>
+                <article key={event.id} className="flex gap-4 rounded-2xl border border-line bg-surface p-4 shadow-sm">
+                  <div className="flex w-16 shrink-0 flex-col items-center justify-center rounded-xl bg-honey-soft py-2 text-honey">
+                    <span className="text-xs uppercase">{when.month}</span>
+                    <span className="font-display text-2xl tabular-nums">{when.day}</span>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -119,7 +130,7 @@ function Overview() {
           )}
         </section>
 
-        <section className="rounded-lg border border-line bg-surface p-4">
+        <section className="rounded-2xl border border-line bg-surface p-5 shadow-sm">
           <h2 className="font-display text-2xl font-medium text-ink">Still loose</h2>
           <p className="mt-1 text-sm text-muted">Unowned tasks and volunteers who have not confirmed.</p>
           {looseTasks.length === 0 && pending.length === 0 ? (
@@ -171,8 +182,11 @@ function Overview() {
         <p className="mt-1 text-sm text-muted">Open tasks only. Reassign from an event board if one person is stuck with the list.</p>
         <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {workload.map((member) => (
-            <li key={member.id} className="rounded-lg border border-line bg-surface p-4">
-              <p className="text-sm font-medium text-ink">{member.name}</p>
+            <li key={member.id} className="rounded-2xl border border-line bg-surface p-4 shadow-sm">
+              <div className="flex size-9 items-center justify-center rounded-full bg-honey-soft text-xs font-medium text-honey">
+                {member.name.split(" ").slice(0, 2).map((part) => part[0]).join("")}
+              </div>
+              <p className="mt-3 text-sm font-medium text-ink">{member.name}</p>
               <p className="text-xs text-muted">{member.role}</p>
               <p className="mt-3 font-display text-2xl tabular-nums text-ink">{member.open}</p>
               <div className="mt-2">
