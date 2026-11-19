@@ -18,6 +18,7 @@ function EventsPage() {
   const events = useHive((state) => state.events);
   const tasks = useHive((state) => state.tasks);
   const shifts = useHive((state) => state.shifts);
+  const participants = useHive((state) => state.participants);
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -33,7 +34,7 @@ function EventsPage() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-4xl font-medium text-ink">Events</h1>
-          <p className="mt-2 max-w-xl text-muted">Each event has its own task board and volunteer roster.</p>
+          <p className="mt-2 max-w-xl text-muted">Each event has its own task board, volunteer roster, and participant list.</p>
         </div>
         <Button type="button" onClick={() => setCreating(true)}>
           New event
@@ -58,6 +59,7 @@ function EventsPage() {
             const pct = mine.length ? Math.round((done / mine.length) * 100) : 0;
             const eventShifts = shifts.filter((shift) => shift.eventId === event.id);
             const confirmed = eventShifts.filter((shift) => shift.status === "confirmed").length;
+            const registered = participants.filter((person) => person.eventId === event.id).length;
             const when = formatDay(event.date);
             return (
               <li key={event.id}>
@@ -87,7 +89,7 @@ function EventsPage() {
                         {done}/{mine.length} tasks
                       </span>
                       <span className="tabular-nums">
-                        {confirmed}/{eventShifts.length} shifts confirmed
+                        {confirmed}/{eventShifts.length} shifts · {registered} registered
                       </span>
                     </div>
                     <Meter value={pct} moss={event.status === "wrapped"} />
