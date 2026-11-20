@@ -92,7 +92,7 @@ export const streamHive = createServerFn({ method: "POST" })
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "openai/gpt-oss-20b",
+          model: "llama-3.3-70b-versatile",
           temperature: 0.8,
           max_tokens: 900,
           messages: [{ role: "system", content: system }, ...input.messages.slice(-8)],
@@ -111,11 +111,12 @@ export const streamHive = createServerFn({ method: "POST" })
       }
 
       const payload = (await response.json()) as {
-        choices?: Array<{ message?: { content?: string } }>;
+        choices?: Array<{ message?: { content?: string; reasoning?: string } }>;
       };
-      const raw = payload.choices?.[0]?.message?.content?.trim() ?? "";
+      const message = payload.choices?.[0]?.message;
+      const raw = (message?.content || message?.reasoning || "").trim();
       if (!raw) {
-        yield { text: "Groq replied empty. Try again.", done: true, source: "local" };
+        yield { text: "Hive AI did not get a reply. Ask again.", done: true, source: "local" };
         return;
       }
 
