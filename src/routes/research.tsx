@@ -57,7 +57,7 @@ function ResearchPage() {
     <div className="flex max-w-3xl flex-col gap-12">
       <header>
         <p className="text-sm font-medium text-honey">Design research</p>
-        <h1 className="mt-1 font-display text-4xl font-medium text-ink">Why the board is shaped this way.</h1>
+        <h1 className="mt-1 font-display text-4xl font-medium text-ink">Why the board looks like this.</h1>
         <p className="mt-3 max-w-xl text-muted">
           Campus events run across WhatsApp, Excel, and Google Forms. We talked with coordinators, volunteers,
           and the people who report status, then shaped the board around what they kept losing.
