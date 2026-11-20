@@ -92,7 +92,7 @@ export const streamHive = createServerFn({ method: "POST" })
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: "openai/gpt-oss-20b",
           temperature: 0.8,
           max_tokens: 900,
           messages: [{ role: "system", content: system }, ...input.messages.slice(-8)],
