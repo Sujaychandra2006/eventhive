@@ -3,5 +3,7 @@ dist
 .git
 .grok
 screenshots
+attachments
 *.log
 .DS_Store
+.vercel
